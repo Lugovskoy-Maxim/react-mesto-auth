@@ -57,7 +57,7 @@ function App() {
           if (res) {
             setEmail(res.data.email);
             setLoggedIn(true);
-            history.push("/mesto-react");
+            history.push("/react-mesto-auth");
           }
           console.log(loggedIn);
         })
@@ -236,7 +236,7 @@ function App() {
             </Route>
             <ProtectedRoute
               loggedIn={loggedIn}
-              exact path="/mesto-react"
+              exact path="/react-mesto-auth"
               component={Main}
               onEditProfile={handleEditProfileClick}
               onEditAvatar={handleEditAvatarClick}
