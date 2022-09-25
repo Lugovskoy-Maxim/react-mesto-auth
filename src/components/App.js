@@ -49,23 +49,21 @@ function App() {
   }, []);
 
   function handleTokenCheck() {
-    if (localStorage.getItem("jwt")) {
-      const jwt = localStorage.getItem("jwt");
-      if (jwt) {
-        auth
-          .checkToken(jwt)
-          .then((res) => {
-            if (res) {
-              setEmail(res.data.email);
-              setLoggedIn(true);
-              history.push("/");
-            }
-            console.log(loggedIn);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
+    const jwt = localStorage.getItem("jwt");
+    if (jwt) {
+      auth
+        .checkToken(jwt)
+        .then((res) => {
+          if (res) {
+            setEmail(res.data.email);
+            setLoggedIn(true);
+            history.push("/");
+          }
+          console.log(loggedIn);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   }
 
