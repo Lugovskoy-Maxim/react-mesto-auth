@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { Route, Switch, useHistory } from "react-router-dom";
+import { Route, Switch, useHistory, Redirect} from "react-router-dom";
 
 import EditAvatarPopup from "./EditAvatarPopup";
 import ImagePopup from "./ImagePopup";
@@ -233,6 +233,7 @@ function App() {
         <div className="page">
           <Header onlogin={loggedIn} email={email} onSignOut={handleSingnOut} />
           <Switch>
+
             <Route path="/signin">
               <Login onLogin={handleAuthorize} />
             </Route>
@@ -251,6 +252,9 @@ function App() {
               handlePreviewPopupClick={handlePreviewPopupClick}
               onCardDelete={handleCardDeleteClick}
             />
+            <Route exact path="*">
+           <Redirect to="/" />
+          </Route>
           </Switch>
 
           <Footer />
