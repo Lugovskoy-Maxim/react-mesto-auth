@@ -8,7 +8,7 @@ const location = useLocation();
   return (
     <header className="header">
       <>
-      <a className="header__link" href="/mesto-react">
+      <a className="header__link" href="/">
         <img className="header__logo" alt="Логотип" src={headerLogo} />
       </a>
       </>
