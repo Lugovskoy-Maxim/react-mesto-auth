@@ -93,6 +93,7 @@ function App() {
   };
 
   useEffect(() => {
+    if(loggedIn) {
     Promise.all([api.getUserData(), api.getInitialCards()])
       .then((data) => {
         setCurrentUser(data[0]); //name, about, avatar, _id
@@ -100,8 +101,8 @@ function App() {
       })
       .catch((err) => {
         console.log(`ошибка ${err}`);
-      });
-  }, [setCards]);
+      })};
+  }, [setCards, loggedIn]);
 
   const handlePreviewPopupClick = (src, alt) => {
     setSelectedCard({
@@ -200,26 +201,30 @@ function App() {
       if (res) {
         localStorage.setItem('jwt', res.token);
         handleTokenCheck();
+        setIsDone(true);
       }
     })
     .catch(err => {
       console.log(err);
-    });
+      setIsDone(false);
+      setIsInfoPopupOpen(true)
+    })
   }
 
   function handleRegister(email, password) {
     auth.register(email, password).then(res => {
       if (res) {
         setIsDone(true);
-        setIsInfoPopupOpen(true);
         history.push("/signin");
       }
     })
     .catch(err => {
       console.log(err);
       setIsDone(false);
-      setIsInfoPopupOpen(true);
-    });
+    })
+    .finally(
+      setIsInfoPopupOpen(true)
+    )
   }
 
   return (
