@@ -1,22 +1,23 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function Register(props) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [userLogin, setUserLogin] = useState({ email: "", password: "" });
+  function handleEmailChange(evt) {
+    setEmail(evt.target.value);
+  }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserLogin({
-      [name]: value,
-    });
-  };
+  function handlePasswordChange(evt) {
+    setPassword(evt.target.value);
+  }
 
   function handleSubmit(evt) {
     evt.preventDefault();
-
-    props.onRegister(userLogin.email, userLogin.password);
-    setUserLogin({ email: "", password: "" })
+    props.onRegister(email, password);
+    setEmail("");
+    setPassword("");
   }
 
   return (
@@ -29,8 +30,8 @@ function Register(props) {
           id="email"
           className="login__input"
           placeholder="Email"
-          onChange={handleChange}
-          value={userLogin.email || ''}
+          onChange={handleEmailChange}
+          value={email || ""}
           required
         />
         <input
@@ -39,17 +40,24 @@ function Register(props) {
           id="password"
           className="login__input"
           placeholder="Пароль"
-          onChange={handleChange}
-          value={userLogin.password || ''}
+          onChange={handlePasswordChange}
+          value={password || ""}
           required
         />
-        <button type="submit" className="login__save-button">Зарегистрироваться</button>
-        <p className="login__text">Уже зарегистрированы?
-        {/* <Link className="login__link link" to="/sign-in">Войти</Link> */}
+        <div className="login__button-container">
+          <button type="submit" className="login__save-button">
+            Зарегистрироваться
+          </button>
+        </div>
+        <p className="login__text">
+          Уже зарегистрированы?
+          <Link className="login__link link" to="/signin">
+            Войти
+          </Link>
         </p>
       </form>
     </div>
-  )
+  );
 }
 
 export default Register;

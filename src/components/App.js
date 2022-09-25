@@ -1,17 +1,27 @@
 import { useState, useEffect } from "react";
-import Header from "./Header";
-import Main from "./Main";
-import Footer from "./Footer";
+
+import { Route, Switch, useHistory } from "react-router-dom";
+
 import EditAvatarPopup from "./EditAvatarPopup";
 import ImagePopup from "./ImagePopup";
 import AddPlacePopup from "./AddPlacePopup";
 import EditProfilePopup from "./EditProfilePopup";
-import { api } from "../Utils/api";
 import DeleteCardPopup from "./DeleteCardPopup";
+import InfoPopup from "./InfoPopup";
+
+import { api } from "../Utils/api";
+ import * as auth from '../Utils/auth';
+import ProtectedRoute from "./ProtectedRoute";
+
 import { CurrentUserContext } from "../context/CurrentUserContext";
 import { LoadingPopupContext } from "../context/LoadingPopupContext";
+
 import Login from "./Login";
-import Register from "./Register"
+import Register from "./Register";
+
+import Header from "./Header";
+import Main from "./Main";
+import Footer from "./Footer";
 
 function App() {
   const [isLoadingPopup, setLoadingPopup] = useState(false);
@@ -20,13 +30,43 @@ function App() {
   const [isAddPopupOpen, setAddPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isDeleteCardPopupOpen, setDeleteCardPopupOpen] = useState(false);
+  const [isInfoPopupOpen,   setIsInfoPopupOpen] = useState(false);
+
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [email, setEmail] = useState('');
+  const [isDone, setIsDone] = useState(false);
   const [selectedCard, setSelectedCard] = useState({
     link: "",
     title: "",
   });
   const [toDeleteCard, setDeleteCardId] = useState({ id: "" });
+  const history = useHistory()
+
+
+  useEffect(() => {
+    handleTokenCheck();
+  }, []);
+
+  function handleTokenCheck() {
+    if (localStorage.getItem('jwt')) {
+      const jwt = localStorage.getItem('jwt');
+      if (jwt) {
+        auth.checkToken(jwt).then(res => {
+          if (res) {
+            setEmail(res.data.email);
+            setLoggedIn(true);
+            history.push("/mesto-react");
+          }
+          console.log(loggedIn);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+      }
+    }
+  }
 
   const handleEditAvatarClick = () => {
     setEditAvatarPopupOpen(true);
@@ -48,6 +88,7 @@ function App() {
     setAddPopupOpen(false);
     setPreviewPopupOpen(false);
     setDeleteCardPopupOpen(false);
+    setIsInfoPopupOpen(false);
     setSelectedCard({ link: "", title: "" });
   };
 
@@ -148,22 +189,65 @@ function App() {
       });
   };
 
+  function handleSingnOut() {
+    setLoggedIn(false);
+    localStorage.removeItem('jwt');
+    setEmail('');
+  }
+
+  function handleAuthorize(email, password) {
+    auth.authorize(email, password).then( res => {
+      if (res) {
+        localStorage.setItem('jwt', res.token);
+        handleTokenCheck();
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  }
+
+  function handleRegister(email, password) {
+    auth.register(email, password).then(res => {
+      if (res) {
+        setIsDone(true);
+        setIsInfoPopupOpen(true);
+        history.push("/signin");
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      setIsDone(false);
+      setIsInfoPopupOpen(true);
+    });
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="App">
         <div className="page">
-          <Header />
-          <Register/>
-          {/* <Login /> */}
-          {/* <Main
-            onEditProfile={handleEditProfileClick}
-            onEditAvatar={handleEditAvatarClick}
-            onAddPlace={handleAddPlaceClick}
-            cards={cards}
-            onCardLike={handleCardLike}
-            handlePreviewPopupClick={handlePreviewPopupClick}
-            onCardDelete={handleCardDeleteClick}
-          /> */}
+          <Header onlogin={loggedIn} email={email} onSignOut={handleSingnOut} />
+          <Switch>
+            <Route path="/signin">
+              <Login onLogin={handleAuthorize} />
+            </Route>
+            <Route path="/signup">
+              <Register onRegister={handleRegister} />
+            </Route>
+            <ProtectedRoute
+              loggedIn={loggedIn}
+              exact path="/mesto-react"
+              component={Main}
+              onEditProfile={handleEditProfileClick}
+              onEditAvatar={handleEditAvatarClick}
+              onAddPlace={handleAddPlaceClick}
+              cards={cards}
+              onCardLike={handleCardLike}
+              handlePreviewPopupClick={handlePreviewPopupClick}
+              onCardDelete={handleCardDeleteClick}
+            />
+          </Switch>
+
           <Footer />
 
           <LoadingPopupContext.Provider value={isLoadingPopup}>
@@ -189,6 +273,12 @@ function App() {
               isOpened={isEditProfilePopupOpen}
               isClosed={closeAllPopups}
               onEditProfile={handleEditProfileSubmit}
+            />
+
+            <InfoPopup
+              isOpened={isInfoPopupOpen}
+              isClosed={closeAllPopups}
+              status={isDone}
             />
 
             <DeleteCardPopup

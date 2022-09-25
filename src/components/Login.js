@@ -1,39 +1,26 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import * as auth from "../Utils/auth";
 
 function Login(props) {
-  const { onLogin } = props;
-  const [userLogin, setUserLogin] = useState({ email: "", password: "" });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserLogin({
-      [name]: value,
-    });
-  };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  function handleEmailChange(evt) {
+    setEmail(evt.target.value);
+  }
+
+  function handlePasswordChange(evt) {
+    setPassword(evt.target.value);
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // здесь нужно будет добавить логин
-    if (!userLogin.email || !userLogin.password) {
-      return;
-    }
-    auth
-      .authorize(userLogin.email, userLogin.password)
-      .then((data) => {
-        if (data.jwt) {
-          setUserLogin({ email: "", password: "" }, () => {
-            // handleLogin();
-            // push("/cards");
-          });
-        }
-        // нужно проверить, есть ли у данных jwt
-        // сбросьте стейт, затем в колбэке установите
-        // стейт loggedIn родительского App как true,
-        // затем перенаправьте его в /diary
-      })
-      .catch((err) => console.log(err));
-  };
+
+    props.onLogin(email, password);
+    setEmail('');
+    setPassword('');
+  }
+
   return (
     <>
       <div className="login">
@@ -47,8 +34,8 @@ function Login(props) {
             id="email"
             name="email"
             type="email"
-            value={userLogin.email || "" }
-            onChange={handleChange}
+            value={email || "" }
+            onChange={handleEmailChange}
           />
           <label htmlFor="password"></label>
           <input
@@ -58,8 +45,8 @@ function Login(props) {
             id="password"
             name="password"
             type="password"
-            value={userLogin.password || ""}
-            onChange={handleChange}
+            value={password || ""}
+            onChange={handlePasswordChange}
           />
           <div className="login__button-container">
             <button type="submit" className="login__save-button">
