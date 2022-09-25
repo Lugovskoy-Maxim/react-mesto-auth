@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { Route, Switch, useHistory, Redirect} from "react-router-dom";
+import { Route, Switch, useHistory, Redirect } from "react-router-dom";
 
 import EditAvatarPopup from "./EditAvatarPopup";
 import ImagePopup from "./ImagePopup";
@@ -10,7 +10,7 @@ import DeleteCardPopup from "./DeleteCardPopup";
 import InfoPopup from "./InfoPopup";
 
 import { api } from "../Utils/api";
- import * as auth from '../Utils/auth';
+import * as auth from "../Utils/auth";
 import ProtectedRoute from "./ProtectedRoute";
 
 import { CurrentUserContext } from "../context/CurrentUserContext";
@@ -30,40 +30,41 @@ function App() {
   const [isAddPopupOpen, setAddPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isDeleteCardPopupOpen, setDeleteCardPopupOpen] = useState(false);
-  const [isInfoPopupOpen,   setIsInfoPopupOpen] = useState(false);
+  const [isInfoPopupOpen, setIsInfoPopupOpen] = useState(false);
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isDone, setIsDone] = useState(false);
   const [selectedCard, setSelectedCard] = useState({
     link: "",
     title: "",
   });
   const [toDeleteCard, setDeleteCardId] = useState({ id: "" });
-  const history = useHistory()
-
+  const history = useHistory();
 
   useEffect(() => {
     handleTokenCheck();
   }, []);
 
   function handleTokenCheck() {
-    if (localStorage.getItem('jwt')) {
-      const jwt = localStorage.getItem('jwt');
+    if (localStorage.getItem("jwt")) {
+      const jwt = localStorage.getItem("jwt");
       if (jwt) {
-        auth.checkToken(jwt).then(res => {
-          if (res) {
-            setEmail(res.data.email);
-            setLoggedIn(true);
-            history.push("/");
-          }
-          console.log(loggedIn);
-        })
-        .catch(err => {
-          console.log(err);
-        });
+        auth
+          .checkToken(jwt)
+          .then((res) => {
+            if (res) {
+              setEmail(res.data.email);
+              setLoggedIn(true);
+              history.push("/");
+            }
+            console.log(loggedIn);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       }
     }
   }
@@ -93,15 +94,16 @@ function App() {
   };
 
   useEffect(() => {
-    if(loggedIn) {
-    Promise.all([api.getUserData(), api.getInitialCards()])
-      .then((data) => {
-        setCurrentUser(data[0]); //name, about, avatar, _id
-        setCards(data[1]);
-      })
-      .catch((err) => {
-        console.log(`ошибка ${err}`);
-      })};
+    if (loggedIn) {
+      Promise.all([api.getUserData(), api.getInitialCards()])
+        .then((data) => {
+          setCurrentUser(data[0]); //name, about, avatar, _id
+          setCards(data[1]);
+        })
+        .catch((err) => {
+          console.log(`ошибка ${err}`);
+        });
+    }
   }, [setCards, loggedIn]);
 
   const handlePreviewPopupClick = (src, alt) => {
@@ -192,39 +194,41 @@ function App() {
 
   function handleSingnOut() {
     setLoggedIn(false);
-    localStorage.removeItem('jwt');
-    setEmail('');
+    localStorage.removeItem("jwt");
+    setEmail("");
   }
 
   function handleAuthorize(email, password) {
-    auth.authorize(email, password).then( res => {
-      if (res) {
-        localStorage.setItem('jwt', res.token);
-        handleTokenCheck();
-        setIsDone(true);
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      setIsDone(false);
-      setIsInfoPopupOpen(true)
-    })
+    auth
+      .authorize(email, password)
+      .then((res) => {
+        if (res) {
+          localStorage.setItem("jwt", res.token);
+          handleTokenCheck();
+          setIsDone(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsDone(false);
+        setIsInfoPopupOpen(true);
+      });
   }
 
   function handleRegister(email, password) {
-    auth.register(email, password).then(res => {
-      if (res) {
-        setIsDone(true);
-        history.push("/signin");
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      setIsDone(false);
-    })
-    .finally(
-      setIsInfoPopupOpen(true)
-    )
+    auth
+      .register(email, password)
+      .then((res) => {
+        if (res) {
+          setIsDone(true);
+          history.push("/signin");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsDone(false);
+      })
+      .finally(setIsInfoPopupOpen(true));
   }
 
   return (
@@ -233,7 +237,6 @@ function App() {
         <div className="page">
           <Header onlogin={loggedIn} email={email} onSignOut={handleSingnOut} />
           <Switch>
-
             <Route path="/signin">
               <Login onLogin={handleAuthorize} />
             </Route>
@@ -242,7 +245,8 @@ function App() {
             </Route>
             <ProtectedRoute
               loggedIn={loggedIn}
-              exact path="/"
+              exact
+              path="/"
               component={Main}
               onEditProfile={handleEditProfileClick}
               onEditAvatar={handleEditAvatarClick}
@@ -252,9 +256,9 @@ function App() {
               handlePreviewPopupClick={handlePreviewPopupClick}
               onCardDelete={handleCardDeleteClick}
             />
-            <Route exact path="*">
-           <Redirect to="/" />
-          </Route>
+            <Route path="*">
+              <Redirect to="/" />
+            </Route>
           </Switch>
 
           <Footer />
