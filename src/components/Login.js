@@ -15,14 +15,12 @@ function Login(props) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     props.onLogin(email, password);
     setEmail('');
     setPassword('');
   }
 
   return (
-    <>
       <div className="login">
         <p className="login__welcome">Вход</p>
         <form onSubmit={handleSubmit} className="login__form">
@@ -55,7 +53,6 @@ function Login(props) {
           </div>
         </form>
       </div>
-    </>
   );
 }
 
