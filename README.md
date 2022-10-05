@@ -25,6 +25,8 @@
 - API;
 - HTML;
 - CSS;
+- Adaptive layout;
+- Grid layout;
 - Файловая структура BEM Nasted;
 
 **TO DO**
